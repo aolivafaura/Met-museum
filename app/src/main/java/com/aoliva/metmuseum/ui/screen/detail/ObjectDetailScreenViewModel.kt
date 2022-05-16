@@ -8,7 +8,7 @@ import com.aoliva.metmuseum.common.mvi.ViewStateReducer
 import com.aoliva.metmuseum.common.viewmodel.BaseViewModel
 import com.aoliva.metmuseum.data.repository.MetRepository
 import com.aoliva.metmuseum.domain.model.MetObject
-import com.aoliva.metmuseum.ui.navigation.DEPARTMENT_OBJECTS_ID
+import com.aoliva.metmuseum.ui.navigation.MET_OBJECT_ID
 import com.aoliva.metmuseum.ui.screen.detail.mapper.FromMetObjectToMetObjectUi
 import com.aoliva.metmuseum.ui.screen.detail.mvi.ObjectDetailScreenPartialState
 import com.aoliva.metmuseum.ui.screen.detail.mvi.ObjectDetailScreenState
@@ -32,13 +32,15 @@ class ObjectDetailScreenViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(dispatchers.io) {
-            val id = savedStateHandle.get<String>(DEPARTMENT_OBJECTS_ID)
+            val id = savedStateHandle.get<String>(MET_OBJECT_ID)
             id?.let {
                 repository.getObject(id.toInt())
                     .collect { metObject ->
-                        reduceViewState(
-                            oldViewState = _state.value,
-                            partialState = ObjectDetailScreenPartialState.Success(metObject.mapToUi())
+                        _state.emit(
+                            reduceViewState(
+                                oldViewState = _state.value,
+                                partialState = ObjectDetailScreenPartialState.Success(metObject.mapToUi())
+                            )
                         )
                     }
             }

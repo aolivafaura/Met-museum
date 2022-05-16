@@ -11,8 +11,8 @@ import com.aoliva.metmuseum.common.mvi.ViewStateReducer
 import com.aoliva.metmuseum.data.repository.MetRepository
 import com.aoliva.metmuseum.domain.model.Department
 import com.aoliva.metmuseum.ui.screen.departments.mapper.FromDepartmentToDepartmentUiMapper
-import com.aoliva.metmuseum.ui.screen.departments.mvi.DepartmentScreenViewAction
-import com.aoliva.metmuseum.ui.screen.departments.mvi.DepartmentScreenViewEffect
+import com.aoliva.metmuseum.ui.screen.departments.mvi.DepartmentsScreenViewAction
+import com.aoliva.metmuseum.ui.screen.departments.mvi.DepartmentsScreenViewEffect
 import com.aoliva.metmuseum.ui.screen.departments.mvi.DepartmentsScreenPartialState
 import com.aoliva.metmuseum.ui.screen.departments.mvi.DepartmentsScreenState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,15 +30,15 @@ class DepartmentsScreenViewModel @Inject constructor(
     private val repository: MetRepository,
     private val fromDepartmentToDepartmentUiMapper: FromDepartmentToDepartmentUiMapper
 ) : BaseViewModel(),
-    ViewActionProcessor<DepartmentScreenViewAction>,
-    ViewEffectEmitter<DepartmentScreenViewEffect>,
+    ViewActionProcessor<DepartmentsScreenViewAction>,
+    ViewEffectEmitter<DepartmentsScreenViewEffect>,
     ViewStateReducer<DepartmentsScreenState, DepartmentsScreenPartialState> {
 
     private val _state = MutableStateFlow(DepartmentsScreenState.INITIAL)
     val state: StateFlow<DepartmentsScreenState> = _state
 
-    private val _viewEffect = MutableSharedFlow<DepartmentScreenViewEffect>()
-    val viewEffect: SharedFlow<DepartmentScreenViewEffect> = _viewEffect
+    private val _viewEffect = MutableSharedFlow<DepartmentsScreenViewEffect>()
+    val viewEffect: SharedFlow<DepartmentsScreenViewEffect> = _viewEffect
 
     init {
         viewModelScope.launch(dispatchers.io) {
@@ -57,21 +57,21 @@ class DepartmentsScreenViewModel @Inject constructor(
     private fun List<Department>.mapToUi() =
         fromDepartmentToDepartmentUiMapper.map(this)
 
-    override fun processAction(action: DepartmentScreenViewAction) {
+    override fun processAction(action: DepartmentsScreenViewAction) {
         when (action) {
-            is DepartmentScreenViewAction.OnDepartmentClick -> {
+            is DepartmentsScreenViewAction.OnDepartmentsClick -> {
                 handleOnDepartmentClick(action.id)
             }
         }
     }
 
     private fun handleOnDepartmentClick(id: Int) {
-        emitViewEffect(DepartmentScreenViewEffect.NavigateToObjects(id))
+        emitViewEffect(DepartmentsScreenViewEffect.NavigateToDepartment(id))
     }
 
-    override fun emitViewEffect(viewEffect: DepartmentScreenViewEffect) {
+    override fun emitViewEffect(viewEffect: DepartmentsScreenViewEffect) {
         when (viewEffect) {
-            is DepartmentScreenViewEffect.NavigateToObjects -> {
+            is DepartmentsScreenViewEffect.NavigateToDepartment -> {
                 viewModelScope.launch {
                     _viewEffect.emit(viewEffect)
                 }

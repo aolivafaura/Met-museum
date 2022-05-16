@@ -20,8 +20,8 @@ import androidx.navigation.NavController
 import com.aoliva.metmuseum.common.model.LoadingErrorSuccess
 import com.aoliva.metmuseum.ui.navigation.Destinations
 import com.aoliva.metmuseum.ui.screen.departments.model.DepartmentUi
-import com.aoliva.metmuseum.ui.screen.departments.mvi.DepartmentScreenViewAction
-import com.aoliva.metmuseum.ui.screen.departments.mvi.DepartmentScreenViewEffect
+import com.aoliva.metmuseum.ui.screen.departments.mvi.DepartmentsScreenViewAction
+import com.aoliva.metmuseum.ui.screen.departments.mvi.DepartmentsScreenViewEffect
 import com.aoliva.metmuseum.ui.theme.MetBlackJet
 import com.aoliva.metmuseum.ui.theme.MetWhiteCultured
 
@@ -35,7 +35,7 @@ fun DepartmentsScreen(
     LaunchedEffect(key1 = true) {
         viewModel.viewEffect.collect { effect ->
             when (effect) {
-                is DepartmentScreenViewEffect.NavigateToObjects -> {
+                is DepartmentsScreenViewEffect.NavigateToDepartment -> {
                     navController.navigate(Destinations.DepartmentObjectsList.createRoute(effect.departmentId))
                 }
             }
@@ -45,11 +45,11 @@ fun DepartmentsScreen(
     Box {
         when (val screenState = state.dataState) {
             is LoadingErrorSuccess.Loading -> {
-                EmptyView()
+                LoadingView()
             }
             is LoadingErrorSuccess.Success -> {
                 DepartmentsList(screenState.data) { id ->
-                    viewModel.processAction(DepartmentScreenViewAction.OnDepartmentClick(id))
+                    viewModel.processAction(DepartmentsScreenViewAction.OnDepartmentsClick(id))
                 }
             }
             is LoadingErrorSuccess.Error -> {
@@ -67,12 +67,21 @@ private fun EmptyView() {
 }
 
 @Composable
+private fun LoadingView() {
+    Column() {
+        Text("The waiting")
+    }
+}
+
+@Composable
 private fun DepartmentsList(list: List<DepartmentUi>, onItemClick: (Int) -> Unit) {
     LazyColumn(modifier = Modifier.background(MetBlackJet)) {
         itemsIndexed(list) { index, item ->
-            DepartmentsListItem(name = item.name, modifier = Modifier.fillMaxWidth()) {
-                onItemClick(item.id)
-            }
+            DepartmentsListItem(
+                name = item.name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onItemClick(item.id) })
             if (index < list.lastIndex) {
                 Divider(color = MetWhiteCultured, startIndent = 8.dp)
             }
@@ -81,13 +90,11 @@ private fun DepartmentsList(list: List<DepartmentUi>, onItemClick: (Int) -> Unit
 }
 
 @Composable
-private fun DepartmentsListItem(name: String, modifier: Modifier, onItemClick: () -> Unit) {
+private fun DepartmentsListItem(name: String, modifier: Modifier) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = name,
-            modifier = Modifier
-                .clickable { onItemClick() }
-                .padding(8.dp),
+            modifier = Modifier.padding(8.dp),
             color = MetWhiteCultured
         )
     }

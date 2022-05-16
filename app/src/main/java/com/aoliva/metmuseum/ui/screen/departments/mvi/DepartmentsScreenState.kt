@@ -10,6 +10,6 @@ data class DepartmentsScreenState(val dataState: LoadingErrorSuccess<List<Depart
     ViewState {
 
     companion object {
-        val INITIAL = DepartmentsScreenState(LoadingErrorSuccess.LoadingError())
+        val INITIAL = DepartmentsScreenState(LoadingErrorSuccess.Loading())
     }
 }
