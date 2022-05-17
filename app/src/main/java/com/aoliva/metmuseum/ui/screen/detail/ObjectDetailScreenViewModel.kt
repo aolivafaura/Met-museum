@@ -4,17 +4,16 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.aoliva.metmuseum.common.dispatcher.DispatcherProvider
 import com.aoliva.metmuseum.common.model.LoadingErrorSuccess
-import com.aoliva.metmuseum.common.mvi.ViewStateReducer
-import com.aoliva.metmuseum.common.viewmodel.BaseViewModel
+import com.aoliva.metmuseum.common.mvi.BaseMviViewModel
 import com.aoliva.metmuseum.data.repository.MetRepository
 import com.aoliva.metmuseum.domain.model.MetObject
 import com.aoliva.metmuseum.ui.navigation.MET_OBJECT_ID
 import com.aoliva.metmuseum.ui.screen.detail.mapper.FromMetObjectToMetObjectUi
 import com.aoliva.metmuseum.ui.screen.detail.mvi.ObjectDetailScreenPartialState
 import com.aoliva.metmuseum.ui.screen.detail.mvi.ObjectDetailScreenState
+import com.aoliva.metmuseum.ui.screen.detail.mvi.ObjectDetailScreenViewAction
+import com.aoliva.metmuseum.ui.screen.detail.mvi.ObjectDetailScreenViewEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,25 +23,26 @@ class ObjectDetailScreenViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val repository: MetRepository,
     private val fromMetObjectToMetObjectUi: FromMetObjectToMetObjectUi
-) : BaseViewModel(),
-    ViewStateReducer<ObjectDetailScreenState, ObjectDetailScreenPartialState> {
-
-    private val _state = MutableStateFlow(ObjectDetailScreenState.INITIAL)
-    val state: StateFlow<ObjectDetailScreenState> = _state
+) : BaseMviViewModel<ObjectDetailScreenState, ObjectDetailScreenPartialState, ObjectDetailScreenViewAction, ObjectDetailScreenViewEffect>(
+    ObjectDetailScreenState.INITIAL
+) {
 
     init {
+        getObjects()
+    }
+
+    private fun getObjects() {
         viewModelScope.launch(dispatchers.io) {
-            val id = savedStateHandle.get<String>(MET_OBJECT_ID)
-            id?.let {
+            savedStateHandle.get<String>(MET_OBJECT_ID)?.let { id ->
                 repository.getObject(id.toInt())
                     .collect { metObject ->
-                        _state.emit(
-                            reduceViewState(
-                                oldViewState = _state.value,
-                                partialState = ObjectDetailScreenPartialState.Success(metObject.mapToUi())
-                            )
+                        reduceAndEmitNewState(
+                            oldViewState = state.value,
+                            partialState = ObjectDetailScreenPartialState.Success(metObject.mapToUi())
                         )
                     }
+            } ?: run {
+                TODO("Define the error case")
             }
         }
     }
@@ -61,6 +61,14 @@ class ObjectDetailScreenViewModel @Inject constructor(
                 throw RuntimeException("Invalid partial state received: $partialState")
             }
         }
+
+    override fun processAction(action: ObjectDetailScreenViewAction) {
+        // No actions received from view
+    }
+
+    override fun processViewEffect(viewEffect: ObjectDetailScreenViewEffect) {
+        // No actions view effects to notify
+    }
 
 }
 

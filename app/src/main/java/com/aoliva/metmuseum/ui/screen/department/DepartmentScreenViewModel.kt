@@ -4,10 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.aoliva.metmuseum.common.dispatcher.DispatcherProvider
 import com.aoliva.metmuseum.common.model.LoadingErrorSuccess
-import com.aoliva.metmuseum.common.mvi.ViewActionProcessor
-import com.aoliva.metmuseum.common.mvi.ViewEffectEmitter
-import com.aoliva.metmuseum.common.mvi.ViewStateReducer
-import com.aoliva.metmuseum.common.viewmodel.BaseViewModel
+import com.aoliva.metmuseum.common.mvi.BaseMviViewModel
 import com.aoliva.metmuseum.data.repository.MetRepository
 import com.aoliva.metmuseum.domain.model.MetObject
 import com.aoliva.metmuseum.ui.navigation.DEPARTMENT_ID
@@ -20,7 +17,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,21 +28,17 @@ class DepartmentScreenViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val repository: MetRepository,
     private val fromMetObjectToMetObjectListItemUi: FromMetObjectToMetObjectListItemUi
-) : BaseViewModel(),
-    ViewStateReducer<DepartmentScreenState, DepartmentScreenPartialState>,
-    ViewActionProcessor<DepartmentScreenViewAction>,
-    ViewEffectEmitter<DepartmentScreenViewEffect> {
-
-    private val _state = MutableStateFlow(DepartmentScreenState.INITIAL)
-    val state: StateFlow<DepartmentScreenState> = _state
-
-    private val _viewEffect = MutableSharedFlow<DepartmentScreenViewEffect>()
-    val viewEffect: SharedFlow<DepartmentScreenViewEffect> = _viewEffect
+) : BaseMviViewModel<DepartmentScreenState, DepartmentScreenPartialState, DepartmentScreenViewAction, DepartmentScreenViewEffect>(
+    DepartmentScreenState.INITIAL
+) {
 
     init {
+        getDepartmentObjects()
+    }
+
+    private fun getDepartmentObjects() {
         viewModelScope.launch(dispatchers.io) {
-            val departmentId = savedStateHandle.get<String>(DEPARTMENT_ID)
-            departmentId?.let {
+            savedStateHandle.get<String>(DEPARTMENT_ID)?.let { departmentId ->
                 repository.getDepartmentObjects(departmentId.toInt())
                     // Limit for now. I don't want to collapse Met museum servers
                     .map { ids -> ids.subList(0, 10) }
@@ -59,11 +53,9 @@ class DepartmentScreenViewModel @Inject constructor(
                         objectsInfo.awaitAll()
                     }
                     .collect { metObjects ->
-                        _state.emit(
-                            reduceViewState(
-                                oldViewState = _state.value,
-                                partialState = DepartmentScreenPartialState.Success(metObjects.mapToUi())
-                            )
+                        reduceAndEmitNewState(
+                            oldViewState = state.value,
+                            partialState = DepartmentScreenPartialState.Success(metObjects.mapToUi())
                         )
                     }
             }
@@ -88,17 +80,15 @@ class DepartmentScreenViewModel @Inject constructor(
     override fun processAction(action: DepartmentScreenViewAction) {
         when (action) {
             is DepartmentScreenViewAction.OnItemClick -> {
-                emitViewEffect(DepartmentScreenViewEffect.NavigateToObjectDetail(action.id))
+                processViewEffect(DepartmentScreenViewEffect.NavigateToObjectDetail(action.id))
             }
         }
     }
 
-    override fun emitViewEffect(viewEffect: DepartmentScreenViewEffect) {
+    override fun processViewEffect(viewEffect: DepartmentScreenViewEffect) {
         when (viewEffect) {
             is DepartmentScreenViewEffect.NavigateToObjectDetail -> {
-                viewModelScope.launch {
-                    _viewEffect.emit(viewEffect)
-                }
+                emitViewEffect(viewEffect)
             }
         }
     }

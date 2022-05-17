@@ -6,7 +6,7 @@ import com.aoliva.metmuseum.common.dispatcher.DispatcherProvider
 
 abstract class BaseViewModel: ViewModel() {
 
-    internal abstract val dispatchers: DispatcherProvider
+    protected abstract val dispatchers: DispatcherProvider
 
-    internal abstract val savedStateHandle: SavedStateHandle
+    protected abstract val savedStateHandle: SavedStateHandle
 }
