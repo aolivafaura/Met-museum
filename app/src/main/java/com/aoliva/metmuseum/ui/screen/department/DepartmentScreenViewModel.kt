@@ -33,32 +33,34 @@ class DepartmentScreenViewModel @Inject constructor(
 ) {
 
     init {
-        getDepartmentObjects()
+        savedStateHandle.get<String>(DEPARTMENT_ID)?.let { departmentId ->
+            getDepartmentObjects(departmentId)
+        } ?: run {
+            TODO("Define the error case")
+        }
     }
 
-    private fun getDepartmentObjects() {
+    private fun getDepartmentObjects(departmentId: String) {
         viewModelScope.launch(dispatchers.io) {
-            savedStateHandle.get<String>(DEPARTMENT_ID)?.let { departmentId ->
-                repository.getDepartmentObjects(departmentId.toInt())
-                    // Limit for now. I don't want to collapse Met museum servers
-                    .map { ids -> ids.subList(0, 10) }
-                    .map { ids ->
-                        val objectsInfo = mutableListOf<Deferred<MetObject>>()
-                        for (id in ids) {
-                            val objectInfo = async {
-                                repository.getObject(id).first()
-                            }
-                            objectsInfo.add(objectInfo)
+            repository.getDepartmentObjects(departmentId.toInt())
+                // Limit for now. I don't want to collapse Met museum servers
+                .map { ids -> ids.subList(0, 10) }
+                .map { ids ->
+                    val objectsInfo = mutableListOf<Deferred<MetObject>>()
+                    for (id in ids) {
+                        val objectInfo = async {
+                            repository.getObject(id).first()
                         }
-                        objectsInfo.awaitAll()
+                        objectsInfo.add(objectInfo)
                     }
-                    .collect { metObjects ->
-                        reduceAndEmitNewState(
-                            oldViewState = state.value,
-                            partialState = DepartmentScreenPartialState.Success(metObjects.mapToUi())
-                        )
-                    }
-            }
+                    objectsInfo.awaitAll()
+                }
+                .collect { metObjects ->
+                    reduceAndEmitNewState(
+                        oldViewState = state.value,
+                        partialState = DepartmentScreenPartialState.Success(metObjects.mapToUi())
+                    )
+                }
         }
     }
 

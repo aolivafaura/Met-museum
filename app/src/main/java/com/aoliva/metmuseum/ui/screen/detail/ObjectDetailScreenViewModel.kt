@@ -28,21 +28,20 @@ class ObjectDetailScreenViewModel @Inject constructor(
 ) {
 
     init {
-        getObjects()
+        savedStateHandle.get<String>(MET_OBJECT_ID)?.let { id ->
+            getObjects(id)
+        } ?: run {
+            TODO("Define the error case")
+        }
     }
 
-    private fun getObjects() {
+    private fun getObjects(id: String) {
         viewModelScope.launch(dispatchers.io) {
-            savedStateHandle.get<String>(MET_OBJECT_ID)?.let { id ->
-                repository.getObject(id.toInt())
-                    .collect { metObject ->
-                        reduceAndEmitNewState(
-                            oldViewState = state.value,
-                            partialState = ObjectDetailScreenPartialState.Success(metObject.mapToUi())
-                        )
-                    }
-            } ?: run {
-                TODO("Define the error case")
+            repository.getObject(id.toInt()).collect { metObject ->
+                reduceAndEmitNewState(
+                    oldViewState = state.value,
+                    partialState = ObjectDetailScreenPartialState.Success(metObject.mapToUi())
+                )
             }
         }
     }
