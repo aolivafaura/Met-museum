@@ -12,6 +12,7 @@ import java.util.concurrent.Executors
 
 @HiltAndroidApp
 class MetMuseum : Application(), ImageLoaderFactory {
+
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate() {
         if (BuildConfig.DEBUG) {
@@ -20,7 +21,7 @@ class MetMuseum : Application(), ImageLoaderFactory {
                     .detectDiskReads()
                     .detectDiskWrites()
                     .detectNetwork()
-                    .penaltyDialog()
+                    .penaltyLog()
                     .build()
             )
             StrictMode.setVmPolicy(

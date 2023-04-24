@@ -1,16 +1,20 @@
 package com.aoliva.metmuseum.ui.theme
 
+import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
-private val DarkColorPalette = darkColors(
+private val DarkColorPalette = darkColorScheme(
     primary = MetBlackJet,
-    primaryVariant = MetBlackJetVariant,
-    secondary = MetCandyAppleRed,
+    secondary = MetBlackJetVariant,
+    tertiary = MetCandyAppleRed,
     background = MetWhiteCultured,
     surface = MetWhiteCultured,
     onPrimary = MetWhiteCultured,
@@ -19,10 +23,10 @@ private val DarkColorPalette = darkColors(
     onSurface = MetBlackJet,
 )
 
-private val LightColorPalette = lightColors(
+private val LightColorPalette = lightColorScheme(
     primary = MetBlackJet,
-    primaryVariant = MetBlackJetVariant,
-    secondary = MetCandyAppleRed,
+    secondary = MetBlackJetVariant,
+    tertiary = MetCandyAppleRed,
     background = MetWhiteCultured,
     surface = MetWhiteCultured,
     onPrimary = MetWhiteCultured,
@@ -32,19 +36,26 @@ private val LightColorPalette = lightColors(
 )
 
 @Composable
-fun MetMuseumTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    val systemUiController = rememberSystemUiController()
-    systemUiController.setSystemBarsColor(color = MetBlackJetVariant)
+fun MetMuseumTheme(isDarkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            window.statusBarColor = MetBlackJetVariant.toArgb()
+            window.navigationBarColor = MetBlackJetVariant.toArgb()
 
-    val colors = if (darkTheme) {
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = isDarkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = isDarkTheme
+        }
+    }
+
+    val colors = if (isDarkTheme) {
         DarkColorPalette
     } else {
         LightColorPalette
     }
     MaterialTheme(
-        colors = colors,
-        typography = Typography,
-        shapes = Shapes,
+        colorScheme = colors,
         content = content
     )
 }

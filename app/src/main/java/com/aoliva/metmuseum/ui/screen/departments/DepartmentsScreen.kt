@@ -5,8 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.Divider
-import androidx.compose.material.Text
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -47,11 +47,13 @@ fun DepartmentsScreen(
             is LoadingErrorSuccess.Loading -> {
                 LoadingView()
             }
+
             is LoadingErrorSuccess.Success -> {
                 DepartmentsList(screenState.data) { id ->
                     viewModel.processAction(DepartmentsScreenViewAction.OnDepartmentsClick(id))
                 }
             }
+
             is LoadingErrorSuccess.Error -> {
                 EmptyView()
             }
@@ -83,7 +85,7 @@ private fun DepartmentsList(list: List<DepartmentUi>, onItemClick: (Int) -> Unit
                     .fillMaxWidth()
                     .clickable { onItemClick(item.id) })
             if (index < list.lastIndex) {
-                Divider(color = MetWhiteCultured, startIndent = 8.dp)
+                Divider(Modifier.padding(start = 8.dp), color = MetWhiteCultured)
             }
         }
     }

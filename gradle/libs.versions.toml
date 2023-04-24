@@ -1,0 +1,63 @@
+[versions]
+# Gradle
+androidGradlePlugin = "8.0.0"
+# Kotlin
+kotlin = "1.8.20"
+# kapt
+kapt = "1.8.20"
+# Compose
+androidxComposeBom = "2023.04.01"
+# AndroidX Hilt
+androidxHilt = "1.0.0"
+# Hilt
+daggerHilt = "2.45"
+# KTX
+ktx = "1.10.0"
+# Moshi
+moshi = "1.13.0"
+# Coil
+coil = "2.0.0"
+# JUnit
+junit = "4.13.2"
+# Misc
+androidxActivity = "1.7.1"
+lifecycleRuntimeKtx = "2.4.1"
+# Compose navigation
+composeNavigation = "2.5.3"
+
+[libraries]
+# Compose
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+# AndroidX
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+# Accompanist
+accompanist-placeholder = { group = "com.google.accompanist", name = "accompanist-placeholder", version.ref = "androidxComposeBom" }
+# KTX
+androidx-ktx-core = { group = "androidx.core", name = "core-ktx", version.ref = "ktx" }
+# Hilt
+dagger-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "daggerHilt" }
+dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "daggerHilt" }
+dagger-hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "daggerHilt" }
+# Navigation
+androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHilt" }
+androidx-compose-navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "composeNavigation"}
+# Moshi
+moshi = { group = "com.squareup.moshi", name = "moshi-kotlin", version.ref = "moshi" }
+# Coil
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+## Test
+# JUnit
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+gradle-hilt = { id = "com.google.dagger.hilt.android", version.ref = "daggerHilt" }
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kapt" }

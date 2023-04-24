@@ -24,8 +24,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DepartmentScreenViewModel @Inject constructor(
-    override val dispatchers: DispatcherProvider,
     override val savedStateHandle: SavedStateHandle,
+    override val dispatchers: DispatcherProvider,
     private val repository: MetRepository,
     private val fromMetObjectToMetObjectListItemUi: FromMetObjectToMetObjectListItemUi
 ) : BaseMviViewModel<DepartmentScreenState, DepartmentScreenPartialState, DepartmentScreenViewAction, DepartmentScreenViewEffect>(

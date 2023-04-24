@@ -6,10 +6,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.Text
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -76,7 +76,7 @@ private fun LoadingView() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MetObjectList(list: List<MetObjectListItemUi>, onItemClick: (String) -> Unit) {
-    LazyVerticalGrid(modifier = Modifier.background(MetBlackJet), cells = GridCells.Fixed(2)) {
+    LazyVerticalGrid(modifier = Modifier.background(MetBlackJet), columns = GridCells.Fixed(2)) {
         itemsIndexed(list) { index, item ->
             ListItem(
                 title = item.title,
